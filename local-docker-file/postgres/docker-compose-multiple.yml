@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+  # Database for Inventory Service
+  postgres-inventory:
+    image: postgres
+    ports:
+      - "5434:5432" # External port 5434 for Inventory DB
+    container_name: postgres-inventory
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: inventory-service
+    volumes:
+      - ./data/inventory:/var/lib/postgresql/data
+      - ./init/inventory/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - spring
+
+  # Database for Order Service
+  postgres-order:
+    image: postgres
+    ports:
+      - "5432:5432" # External port 5433 for Order DB
+    container_name: postgres-order
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: order-service
+    volumes:
+      - ./data/order:/var/lib/postgresql/data
+      - ./init/order/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - spring
+
+  # Single PgAdmin for both databases
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "8888:80" # External port 8888 for PgAdmin
+    container_name: pgadmin-multi
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@domain.ca
+      PGADMIN_DEFAULT_PASSWORD: password
+    networks:
+      - spring
+
+networks:
+  spring:
